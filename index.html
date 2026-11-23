@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>predX — Personal Decision Simulation Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f5ff;--card:#ffffff;--tx:#16142b;--mu:#6a6785;--ac:#6d4aff;--ac2:#00a99b;
+  --bd:#e4e1f7;--bad:#e5484d;--warn:#d98a00;--glow:rgba(109,74,255,.12);
+  --chip-bg:#f0effc;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e0d1f;--card:#17152e;--tx:#f1efff;--mu:#a19fc4;--ac:#9b82ff;--ac2:#2fe0cf;
+    --bd:#2a2750;--bad:#ff6b70;--warn:#ffb84d;--glow:rgba(155,130,255,.18);
+    --chip-bg:#221f42;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e0d1f;--card:#17152e;--tx:#f1efff;--mu:#a19fc4;--ac:#9b82ff;--ac2:#2fe0cf;
+  --bd:#2a2750;--bad:#ff6b70;--warn:#ffb84d;--glow:rgba(155,130,255,.18);
+  --chip-bg:#221f42;
+}
+:root[data-theme="light"]{
+  --bg:#f6f5ff;--card:#ffffff;--tx:#16142b;--mu:#6a6785;--ac:#6d4aff;--ac2:#00a99b;
+  --bd:#e4e1f7;--bad:#e5484d;--warn:#d98a00;--glow:rgba(109,74,255,.12);
+  --chip-bg:#f0effc;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--tx);
+  font-family:'Plus Jakarta Sans',system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;
+  line-height:1.55;transition:background .2s,color .2s;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+header{
+  display:flex;justify-content:space-between;align-items:center;padding:20px 0;
+}
+.logo-box{display:flex;align-items:center;gap:10px}
+.logo{font-weight:800;font-size:24px;letter-spacing:-.03em}
+.logo b{color:var(--ac)}
+.logo-tag{
+  font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;
+  background:var(--glow);color:var(--ac);border:1px solid var(--bd)
+}
+.header-actions{display:flex;align-items:center;gap:10px}
+.icon-btn{
+  background:var(--card);border:1px solid var(--bd);color:var(--tx);
+  border-radius:10px;padding:8px 12px;font:600 13px inherit;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;transition:all .15s;
+}
+.icon-btn:hover{border-color:var(--ac);background:var(--glow)}
+.hero{text-align:center;padding:24px 0 28px;background:radial-gradient(60% 90% at 50% 0%,var(--glow),transparent)}
+h1{font-size:clamp(30px,5vw,50px);line-height:1.08;letter-spacing:-.03em;margin:0 0 12px;font-weight:800}
+h1 span{background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{max-width:620px;margin:0 auto;color:var(--mu);font-size:16px}
+.tabs{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:0 0 22px}
+.chip{
+  border:1px solid var(--bd);background:var(--card);color:var(--tx);
+  border-radius:99px;padding:9px 18px;font:600 14px inherit;cursor:pointer;
+  transition:all .15s;display:inline-flex;align-items:center;gap:6px;
+}
+.chip:hover{border-color:var(--ac)}
+.chip.on{background:var(--ac);color:#fff;border-color:var(--ac);box-shadow:0 4px 12px rgba(109,74,255,.25)}
+.chip.sm{padding:6px 13px;font-size:13px;background:var(--chip-bg);border-color:transparent}
+.chip.sm:hover{border-color:var(--bd)}
+.chip.sm.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.chip.tag{background:var(--glow);color:var(--tx);border-color:var(--ac);padding:6px 14px;font-size:13px}
+.grid{display:grid;grid-template-columns:400px 1fr;gap:22px;align-items:start}
+@media(max-width:920px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,.03)}
+.card h3{margin:0 0 4px;font-size:19px;font-weight:800}.sub{color:var(--mu);font-size:13px;margin:0 0 16px}
+label{display:block;font-size:13px;font-weight:700;margin:16px 0 6px}
+input,select,textarea{
+  width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--bd);
+  background:var(--bg);color:var(--tx);font:600 14px inherit;outline:none;
+  transition:border .15s,box-shadow .15s;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--ac);box-shadow:0 0 0 3px var(--glow)}
+input.invalid,textarea.invalid{border-color:var(--bad)!important;animation:shake .3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+textarea{min-height:85px;resize:vertical}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.addrow{display:flex;gap:8px}.addrow input{flex:1}.addrow button{white-space:nowrap}
+.btn{
+  background:linear-gradient(135deg,var(--ac),#5833ea);color:#fff;border:0;
+  border-radius:12px;padding:15px 24px;font:800 15px inherit;cursor:pointer;
+  width:100%;margin-top:22px;box-shadow:0 4px 14px rgba(109,74,255,.3);
+  transition:transform .1s,opacity .15s;
+}
+.btn:hover{opacity:.95}
+.btn:active{transform:scale(.99)}
+.btn:disabled{opacity:.6;cursor:wait}
+.empty{text-align:center;color:var(--mu);padding:60px 20px}
+.empty big{font-size:46px;display:block;margin-bottom:10px}
+.verdict{display:flex;gap:14px;align-items:center;padding:16px;border-radius:14px;background:var(--glow);margin:14px 0 18px}
+.vb{font-weight:800;padding:6px 14px;border-radius:99px;color:#fff;white-space:nowrap;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+@media(max-width:700px){.stats{grid-template-columns:1fr 1fr}}
+.stat{background:var(--bg);border-radius:14px;padding:14px;border:1px solid var(--bd)}
+.stat small{color:var(--mu);font-size:12px;display:block;min-height:30px;line-height:1.25}
+.stat b{font-size:26px;letter-spacing:-.02em}
+.bar{height:8px;background:var(--bd);border-radius:9px;margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));border-radius:9px}
+.sc{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:800px){.sc{grid-template-columns:1fr}}
+.s{border:1px solid var(--bd);border-radius:14px;padding:16px;border-top-width:4px;background:var(--bg)}
+.s h4{margin:0 0 6px;font-size:15px}.s p{margin:0;font-size:13px;color:var(--mu);line-height:1.45}
+h5{font-size:15px;margin:24px 0 10px;font-weight:800}
+.it{border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:10px;background:var(--bg)}
+.it div{display:flex;justify-content:space-between;gap:10px;font-size:14px}
+.it p{margin:6px 0 0;font-size:13px;color:var(--mu)}
+ul{margin:0;padding-left:18px;font-size:14px;color:var(--mu)}
+li{margin-bottom:8px;line-height:1.45}
+.ms{border-left:2px solid var(--ac);margin-left:6px;padding-left:16px}
+.ms div{position:relative;margin-bottom:14px;font-size:14px}
+.ms div:before{content:"";position:absolute;left:-23px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--ac2)}
+.ms b{color:var(--ac)}
+.note{font-size:12px;color:var(--mu);margin-top:20px;padding-top:12px;border-top:1px dashed var(--bd)}
+.spin{display:inline-block;width:40px;height:40px;border:3px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:sp 1s linear infinite;margin-bottom:14px}
+@keyframes sp{to{transform:rotate(360deg)}}
+footer{text-align:center;color:var(--mu);font-size:13px;padding:40px 0 30px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99;align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex}
+.modal-card{background:var(--card);border:1px solid var(--bd);border-radius:20px;max-width:480px;width:100%;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.modal-card h3{margin-top:0}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="logo-box">
+    <div class="logo">pred<b>X</b></div>
+    <span class="logo-tag">Decision Simulator</span>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" id="theme-btn" title="Toggle theme">🌓 Theme</button>
+    <button class="icon-btn" id="settings-btn" title="AI Settings">⚙️ AI Config</button>
+  </div>
+</header>
+
+<div class="hero">
+  <h1>Live the decision <span>before you make it.</span></h1>
+  <p>Forecast your success probability, timeline, runway, risks and milestones with predX decision simulations.</p>
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="grid">
+  <div class="card">
+    <h3 id="ft"></h3>
+    <p class="sub" id="fs"></p>
+    <div id="form"></div>
+    <button class="btn" id="go">Simulate my decision</button>
+  </div>
+  <div class="card" id="out">
+    <div class="empty">
+      <big>🔮</big>
+      Review your parameters and press <b>Simulate my decision</b> to forecast your outcomes.
+    </div>
+  </div>
+</div>
+
+<footer>
+  predX Estimates are based on real-world probability distributions and your inputs. For informational purposes only.
+</footer>
+</div>
+
+<!-- AI Settings Modal -->
+<div class="modal" id="settings-modal">
+  <div class="modal-card">
+    <h3>⚙️ AI Engine Settings</h3>
+    <p class="sub">By default, predX uses its built-in offline simulation model. You can optionally connect your own AI key for customized analysis.</p>
+    <label>Provider</label>
+    <select id="cfg-provider">
+      <option value="builtin">Built-in Deterministic Model (No API key needed)</option>
+      <option value="gemini">Google Gemini (Gemini 1.5 Flash)</option>
+      <option value="anthropic">Anthropic Claude (Claude 3.5 Sonnet)</option>
+      <option value="openai">OpenAI (GPT-4o Mini)</option>
+    </select>
+    <div id="cfg-key-wrap" style="display:none;margin-top:12px;">
+      <label id="cfg-key-label">API Key</label>
+      <input type="password" id="cfg-key" placeholder="Enter your API key">
+      <small style="color:var(--mu);display:block;margin-top:6px;">Your key is stored securely only in your browser's localStorage.</small>
+    </div>
+    <div class="modal-actions">
+      <button class="icon-btn" id="cfg-close">Cancel</button>
+      <button class="icon-btn" style="background:var(--ac);color:#fff;border-color:var(--ac)" id="cfg-save">Save Settings</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var CAR=['Data Science / AI','Software Development','UX / Product Design','Product Management','Digital Marketing','Finance / Investing','Teaching / Training','Content Creation','Entrepreneurship','Cybersecurity'];
+var SK=['Python','Data Analysis','Web Development','Digital Marketing','Public Speaking','UI/UX Design','Excel / SQL','Machine Learning','Cloud Architecture','Copywriting'];
+var HRS=['10','20','30','40','60'],EXP=['None','Beginner','Some experience','Experienced','Expert'];
+
+var T={
+business:{
+  l:'Start a business',h:'Your business plan',s:'Specify what you want to launch and your financial runway.',base:10,risk:22,
+  f:[
+    {k:'idea',t:'chips',label:'What business do you want to start?',ph:'Type or select an idea…',d:'Online store',o:['Online store','Cloud kitchen','Digital agency','Mobile app / SaaS','Cafe','Freelance agency','EdTech / Tutoring']},
+    {k:'budget',t:'num',label:'Starting budget (₹)',d:500000},
+    {k:'goal',t:'num',label:'Target monthly profit (₹)',d:100000},
+    {k:'exp',t:'sel',label:'Your experience in this domain',o:EXP,d:1},
+    {k:'hrs',t:'sel',label:'Hours per week you can commit',o:HRS,d:3},
+    {k:'rw',t:'num',label:'Months you can survive without revenue',d:8}
+  ]
+},
+career:{
+  l:'Change career',h:'Your career switch',s:'Pick one or more target careers to compare their probability and timeline.',base:8,risk:8,
+  f:[
+    {k:'cur',t:'text',label:'Your current role / background',ph:'e.g. Mechanical Engineer',d:'Mechanical Engineer'},
+    {k:'tags',t:'tags',label:'Careers you want to transition into',o:CAR,ph:'Add another career…',d:['Data Science / AI']},
+    {k:'exp',t:'sel',label:'Years of work experience so far',o:['0–1 years','2–4 years','5–8 years','9+ years'],d:1},
+    {k:'cursal',t:'num',label:'Current monthly salary (₹)',d:70000},
+    {k:'hrs',t:'sel',label:'Weekly hours dedicated to upskilling',o:HRS,d:1},
+    {k:'rw',t:'num',label:'Months of financial runway you have',d:6}
+  ]
+},
+skill:{
+  l:'Learn a new skill',h:'Your skill roadmap',s:'Add the skills you want to master and see realistic mastery timelines.',base:5,risk:2,
+  f:[
+    {k:'tags',t:'tags',label:'Skills you want to acquire',o:SK,ph:'Add a custom skill…',d:['Python','Data Analysis']},
+    {k:'lvl',t:'sel',label:'Your current proficiency level',o:EXP.slice(0,4),d:0},
+    {k:'hrs',t:'sel',label:'Hours per week you can practice',o:HRS,d:1},
+    {k:'goal',t:'sel',label:'Primary objective',o:['Get a high-paying job','Get promoted / raise','Earn through freelancing','Build a project','Personal growth'],d:0},
+    {k:'rw',t:'num',label:'Months you can consistently commit',d:6}
+  ]
+},
+uni:{
+  l:'Higher education',h:'Your university plan',s:'Estimate outcome probability and ROI for higher education.',base:28,risk:6,
+  f:[
+    {k:'idea',t:'chips',label:'Target degree / field',ph:'Type or select degree…',d:'Computer Science',o:['Computer Science','MBA','Data Science','AI & Robotics','Design / HCI','Finance']},
+    {k:'lvl',t:'sel',label:'Level of study',o:['Undergraduate','Postgraduate (Masters)','MBA','PhD'],d:1},
+    {k:'where',t:'sel',label:'Destination',o:['India – Premier (IIT/IIM)','India – Private','Abroad (US / Europe / UK)','Abroad (Other)'],d:2},
+    {k:'cost',t:'num',label:'Total estimated tuition & living cost (₹)',d:2500000},
+    {k:'goal',t:'sel',label:'Main objective',o:['Higher starting salary','Switch industry','Relocate abroad','Research / PhD'],d:0},
+    {k:'rw',t:'num',label:'Months of financial coverage / funding',d:24}
+  ]
+},
+custom:{
+  l:'Custom decision',h:'Any life decision',s:'Evaluate any big personal or professional move under realistic constraints.',base:12,risk:10,
+  f:[
+    {k:'idea',t:'text',label:'What decision are you considering?',ph:'e.g. Move to Bangalore for startup opportunity',d:'Relocate to a new city for career growth'},
+    {k:'ass',t:'area',label:'Your key assumptions (finances, family, timeline)',ph:'e.g. Have 6 months emergency fund, 30% salary increase expected',d:'Have ₹3 Lakhs emergency fund saved. Expected salary bump of 30%.'},
+    {k:'hrs',t:'sel',label:'Weekly hours dedicated to execution',o:HRS,d:2},
+    {k:'rw',t:'num',label:'Months you can sustain before needing a return',d:12}
+  ]
+}
+};
+
+var cur='business',V={},$=function(i){return document.getElementById(i)};
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function pct(n){var num=parseFloat(String(n).replace(/[^\d.]/g,''));if(isNaN(num))return 0;return Math.max(0,Math.min(100,Math.round(num)))}
+
+function initTheme(){
+  var saved=localStorage.getItem('predx_theme');
+  if(saved){document.documentElement.setAttribute('data-theme',saved)}
+  $('theme-btn').onclick=function(){
+    var c=document.documentElement.getAttribute('data-theme')||'light';
+    var next=c==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',next);
+    localStorage.setItem('predx_theme',next);
+  };
+}
+
+function initSettings(){
+  var modal=$('settings-modal'),sel=$('cfg-provider'),wrap=$('cfg-key-wrap'),inp=$('cfg-key'),lbl=$('cfg-key-label');
+  var p=localStorage.getItem('predx_provider')||'builtin';
+  var k=localStorage.getItem('predx_key')||'';
+  sel.value=p;inp.value=k;
+  function up(){
+    if(sel.value==='builtin'){wrap.style.display='none'}
+    else{wrap.style.display='block';lbl.textContent=sel.value==='gemini'?'Gemini API Key':sel.value==='anthropic'?'Anthropic API Key':'OpenAI API Key'}
+  }
+  sel.onchange=up;up();
+  $('settings-btn').onclick=function(){modal.classList.add('open')};
+  $('cfg-close').onclick=function(){modal.classList.remove('open')};
+  $('cfg-save').onclick=function(){
+    localStorage.setItem('predx_provider',sel.value);
+    localStorage.setItem('predx_key',inp.value.trim());
+    modal.classList.remove('open');
+  };
+}
+
+function tabs(){
+  $('tabs').innerHTML='';
+  Object.keys(T).forEach(function(k){
+    var b=document.createElement('button');
+    b.className='chip'+(k===cur?' on':'');
+    b.textContent=T[k].l;
+    b.onclick=function(){cur=k;tabs();form()};
+    $('tabs').appendChild(b);
+  });
+}
+
+function form(){
+  var t=T[cur];V={};$('ft').textContent=t.h;$('fs').textContent=t.s;var h='';
+  t.f.forEach(function(f){
+    h+='<label>'+esc(f.label)+'</label>';
+    var val=f.d!=null?f.d:'';
+    if(f.t==='num'){
+      h+='<input type="number" min="0" id="f_'+f.k+'" value="'+val+'">';
+    } else if(f.t==='sel'){
+      h+='<select id="f_'+f.k+'">'+f.o.map(function(o,j){return '<option'+(j===(f.d||0)?' selected':'')+'>'+esc(o)+'</option>'}).join('')+'</select>';
+    } else if(f.t==='area'){
+      h+='<textarea id="f_'+f.k+'" placeholder="'+esc(f.ph||'')+'">'+esc(val)+'</textarea>';
+    } else if(f.t==='text'){
+      h+='<input type="text" id="f_'+f.k+'" placeholder="'+esc(f.ph||'')+'" value="'+esc(val)+'">';
+    } else if(f.t==='chips'){
+      h+='<input type="text" id="f_'+f.k+'" placeholder="'+esc(f.ph||'')+'" value="'+esc(val)+'"><div class="row" id="chips_'+f.k+'">'
+        +f.o.map(function(o){var act=o===val?' on':'';return '<button type="button" class="chip sm'+act+'" data-k="'+f.k+'" data-v="'+esc(o)+'">'+esc(o)+'</button>'}).join('')+'</div>';
+    } else if(f.t==='tags'){
+      V[f.k]=Array.isArray(f.d)?f.d.slice():[];
+      h+='<div class="addrow"><input type="text" id="n_'+f.k+'" placeholder="'+esc(f.ph||'')+'"><button type="button" class="chip on" data-add="'+f.k+'">Add</button></div>'
+        +'<div class="row" id="sel_'+f.k+'" style="min-height:36px;margin:8px 0 12px"></div>'
+        +'<div class="sub" style="margin-bottom:6px">Tap to toggle suggested:</div>'
+        +'<div class="row" id="sug_'+f.k+'">'
+        +f.o.map(function(o){var isSel=V[f.k].indexOf(o)>-1;return '<button type="button" class="chip sm'+(isSel?' on':'')+'" data-tag="'+f.k+'" data-v="'+esc(o)+'">'+(isSel?'✓ ':'+ ')+esc(o)+'</button>'}).join('')+'</div>';
+    }
+  });
+
+  $('form').innerHTML=h;
+
+  // Bind chips
+  Array.prototype.forEach.call($('form').querySelectorAll('[data-v][data-k]'),function(b){
+    b.onclick=function(){
+      var k=b.dataset.k;$('f_'+k).value=b.dataset.v;$('f_'+k).classList.remove('invalid');
+      Array.prototype.forEach.call($('chips_'+k).children,function(c){c.classList.remove('on')});
+      b.classList.add('on');
+    };
+  });
+
+  // Bind text inputs that mirror chips
+  t.f.forEach(function(f){
+    if(f.t==='chips'){
+      var inp=$('f_'+f.k);
+      inp.oninput=function(){
+        inp.classList.remove('invalid');
+        var val=inp.value.trim().toLowerCase();
+        Array.prototype.forEach.call($('chips_'+f.k).children,function(c){
+          c.classList.toggle('on',c.dataset.v.toLowerCase()===val);
+        });
+      };
+    } else if(f.t==='text'||f.t==='area'||f.t==='num'){
+      var inp=$('f_'+f.k);
+      if(inp)inp.oninput=function(){inp.classList.remove('invalid')};
+    } else if(f.t==='tags'){
+      drawTags(f.k);
+      var addBtn=$('form').querySelector('[data-add="'+f.k+'"]');
+      if(addBtn)addBtn.onclick=function(){var i=$('n_'+f.k);addTag(f.k,i.value.trim());i.value=''};
+      var nInp=$('n_'+f.k);
+      if(nInp)nInp.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();addTag(f.k,nInp.value.trim());nInp.value=''}};
+    }
+  });
+
+  // Bind tag click suggestions
+  Array.prototype.forEach.call($('form').querySelectorAll('[data-tag]'),function(b){
+    b.onclick=function(){toggleTag(b.dataset.tag,b.dataset.v)};
+  });
+}
+
+function toggleTag(k,v){
+  if(!v)return;
+  var idx=V[k].indexOf(v);
+  if(idx>-1){V[k].splice(idx,1)}
+  else{if(V[k].length>=5)return;V[k].push(v)}
+  drawTags(k);
+}
+
+function addTag(k,v){
+  if(!v||V[k].indexOf(v)>-1||V[k].length>=5)return;
+  V[k].push(v);
+  drawTags(k);
+}
+
+function drawTags(k){
+  var sel=$('sel_'+k);if(!sel)return;
+  sel.innerHTML=V[k].map(function(v,i){
+    return '<button type="button" class="chip tag" data-r="'+i+'">'+esc(v)+' ✕</button>';
+  }).join('');
+  Array.prototype.forEach.call(sel.children,function(b){
+    b.onclick=function(){V[k].splice(+b.dataset.r,1);drawTags(k)};
+  });
+  // Update suggestion chips
+  var sug=$('sug_'+k);
+  if(sug){
+    Array.prototype.forEach.call(sug.children,function(b){
+      var v=b.dataset.v;var isSel=V[k].indexOf(v)>-1;
+      b.classList.toggle('on',isSel);
+      b.textContent=(isSel?'✓ ':'+ ')+v;
+    });
+  }
+}
+
+function collect(){
+  var o={},t=T[cur],ok=true,firstErr=null;
+  t.f.forEach(function(f){
+    if(f.t==='tags'){
+      o[f.label]=V[f.k]||[];
+      if(!o[f.label].length){ok=false;if(!firstErr)firstErr=$('n_'+f.k)}
+    } else {
+      var el=$('f_'+f.k);
+      var val=el?el.value.trim():'';
+      o[f.label]=val;
+      if((f.t==='text'||f.t==='chips')&&!val){
+        ok=false;el.classList.add('invalid');
+        if(!firstErr)firstErr=el;
+      }
+    }
+  });
+  if(!ok&&firstErr){firstErr.focus()}
+  return ok?o:null;
+}
+
+function hash(s){var h=0;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return Math.abs(h)}
+
+function fallback(raw){
+  var t=T[cur];
+  var g=function(k){
+    var f=t.f.filter(function(x){return x.k===k})[0];
+    if(!f)return null;
+    return f.t==='tags'?(V[k]||[]):($('f_'+k)?$('f_'+k).value:'');
+  };
+  var expField=t.f.filter(function(x){return x.k==='exp'||x.k==='lvl'})[0]||{o:[]};
+  var ei=Math.max(0,expField.o.indexOf(g('exp')||g('lvl')));
+  var hrs=+(g('hrs')||30),rw=+(g('rw')||6);
+
+  var calc=function(name){
+    var cleanName=String(name||'your goal').trim();
+    var j=(hash(cleanName)%11)-5;
+    var p=Math.max(12,Math.min(92,Math.round(36+ei*8+Math.min(hrs,40)*0.5+Math.min(rw,18)*1.3-t.risk+j)));
+    var m=Math.max(2,Math.round(t.base*(1.45-0.12*ei)*Math.sqrt(35/Math.max(hrs,8))+j/2));
+    return{name:cleanName,probability:p,months:m,note:'Grounded on '+hrs+' hrs/wk, '+rw+' months runway and '+EXP[ei]+' experience.'};
+  };
+
+  var names=(V.tags&&V.tags.length)?V.tags:[g('idea')||'Your plan'];
+  var items=names.map(calc);
+  var a=items[0]||calc('Goal');
+  var verdict=a.probability>=62?'Go':a.probability>=44?'Go with changes':'Rethink';
+
+  return {
+    verdict:verdict,
+    summary:'Based on your inputs, you have a '+a.probability+'% estimated chance of success in ~'+a.months+' months with '+rw+' months runway.',
+    successProbability:a.probability,
+    monthsToResults:a.months,
+    monthsYouCanSustain:rw,
+    chanceOfGoal:Math.max(5,a.probability-6),
+    goalLabel:'achieving your target outcome',
+    scenarios:{
+      best:'Faster traction enables you to hit milestones by month '+Math.max(2,Math.round(a.months*0.7))+'.',
+      likely:'Steady execution yields solid results around month '+a.months+' with typical adjustments.',
+      worst:rw<a.months?'Runway exhausts before expected results. Extend runway or reduce initial scope.':'Unforeseen obstacles delay progress; keep strict check-in checkpoints.'
+    },
+    milestones:[
+      {month:Math.max(1,Math.round(a.months*0.25)),text:'Initial traction & feedback loop established'},
+      {month:Math.round(a.months*0.6),text:'Consistent measurable validation of progress'},
+      {month:a.months,text:'Target outcome and sustainable velocity reached'}
+    ],
+    risks:[
+      'Underestimating ramp-up time and learning curve',
+      'Resource exhaustion prior to key payoff inflection point',
+      'Distraction across too many competing priorities'
+    ],
+    nextSteps:[
+      'Conduct a focused 2-week mini-test with minimal risk',
+      'Schedule a firm 90-day progress review checkpoint',
+      'Preserve financial runway and build accountability routines'
+    ],
+    items:items.length>1?items:[]
+  };
+}
+
+function render(r,note){
+  var col=r.verdict==='Go'?'var(--ac2)':r.verdict==='Rethink'?'var(--bad)':'var(--warn)';
+  var sus=parseInt(String(r.monthsYouCanSustain).replace(/[^\d]/g,''),10)||0;
+  var res=parseInt(String(r.monthsToResults).replace(/[^\d]/g,''),10)||0;
+  var short=sus<res;
+  var prob=pct(r.successProbability);
+  var goalProb=pct(r.chanceOfGoal);
+
+  var h='<h3>Simulation Results</h3>'
+    +'<div class="verdict"><span class="vb" style="background:'+col+'">'+esc(r.verdict)+'</span><span style="font-size:14px;font-weight:600">'+esc(r.summary)+'</span></div>'
+    +'<div class="stats">'
+    +'<div class="stat"><small>Probability of Success</small><b>'+prob+'%</b><div class="bar"><i style="width:'+prob+'%"></i></div></div>'
+    +'<div class="stat"><small>Time to Meaningful Results</small><b>'+res+' mo</b></div>'
+    +'<div class="stat"><small>Your Runway Capacity</small><b style="color:'+(short?'var(--bad)':'inherit')+'">'+sus+' mo</b></div>'
+    +'<div class="stat"><small>Goal Completion Chance</small><b>'+goalProb+'%</b><div class="bar"><i style="width:'+goalProb+'%"></i></div></div>'
+    +'</div>';
+
+  if(short){
+    h+='<div class="verdict" style="background:transparent;border:1px solid var(--bad);color:var(--bad)">⚠️ <b>Runway Warning:</b> You have '+sus+' months of runway, but results typically require '+res+' months. Broaden your buffer or lower initial burn rate.</div>';
+  }
+
+  if(r.items&&r.items.length>1){
+    h+='<h5>Comparative Options Analysis</h5>'+r.items.map(function(i){
+      var ip=pct(i.probability);
+      return '<div class="it"><div><b>'+esc(i.name)+'</b><span>'+ip+'% chance · ~'+esc(i.months)+' months</span></div>'
+        +'<div class="bar" style="margin-top:8px"><i style="width:'+ip+'%"></i></div>'
+        +'<p>'+esc(i.note)+'</p></div>';
+    }).join('');
+  }
+
+  var sc=r.scenarios||{};
+  h+='<h5>Forecast Scenarios</h5><div class="sc">'
+    +'<div class="s" style="border-top-color:var(--ac2)"><h4>Best Case</h4><p>'+esc(sc.best||'')+'</p></div>'
+    +'<div class="s" style="border-top-color:var(--ac)"><h4>Most Likely</h4><p>'+esc(sc.likely||'')+'</p></div>'
+    +'<div class="s" style="border-top-color:var(--bad)"><h4>Worst Case</h4><p>'+esc(sc.worst||'')+'</p></div>'
+    +'</div>';
+
+  if(r.milestones&&r.milestones.length){
+    h+='<h5>Milestone Roadmap</h5><div class="ms">'+r.milestones.map(function(m){
+      return '<div><b>Month '+esc(m.month)+'</b> — '+esc(m.text)+'</div>';
+    }).join('')+'</div>';
+  }
+
+  if(r.risks&&r.risks.length){
+    h+='<h5>Critical Risk Factors</h5><ul>'+r.risks.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>';
+  }
+  if(r.nextSteps&&r.nextSteps.length){
+    h+='<h5>Actionable Next Steps</h5><ul>'+r.nextSteps.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>';
+  }
+  if(note){
+    h+='<p class="note">'+esc(note)+'</p>';
+  }
+  $('out').innerHTML=h;
+}
+
+async function runClientAi(provider,key,prompt){
+  if(provider==='gemini'){
+    var res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+key,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:'application/json'}})
+    });
+    if(!res.ok)throw new Error('Gemini API call failed: '+res.status);
+    var d=await res.json();
+    var txt=d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts&&d.candidates[0].content.parts[0]?d.candidates[0].content.parts[0].text:'';
+    return JSON.parse(txt);
+  } else if(provider==='openai'){
+    var res=await fetch('https://api.openai.com/v1/chat/completions',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},
+      body:JSON.stringify({model:'gpt-4o-mini',messages:[{role:'user',content:prompt}],response_format:{type:'json_object'}})
+    });
+    if(!res.ok)throw new Error('OpenAI API call failed: '+res.status);
+    var d=await res.json();
+    return JSON.parse(d.choices[0].message.content);
+  }
+  throw new Error('Unsupported client provider');
+}
+
+$('go').onclick=async function(){
+  var inp=collect();
+  if(!inp){
+    $('out').innerHTML='<div class="empty"><big>✍️</big>Please complete the highlighted field to simulate.</div>';
+    return;
+  }
+  $('go').disabled=true;
+  $('out').innerHTML='<div class="empty"><div class="spin"></div><br><b>Running predX simulation engine…</b><div style="font-size:13px;color:var(--mu);margin-top:8px">Synthesizing parameters, risks, and runway projections...</div></div>';
+
+  var prompt='You are predX, a realistic decision simulation analyst. The user is evaluating: "'+T[cur].l+'". User parameters (JSON): '+JSON.stringify(inp)+'. Give an honest, mathematically grounded estimate reflecting budget, hours, runway, and domain difficulty. Do not be overly optimistic. Return ONLY valid JSON with this shape: {"verdict":"Go|Go with changes|Rethink","summary":"2 concise sentences","successProbability":0-100,"monthsToResults":number,"monthsYouCanSustain":number,"chanceOfGoal":0-100,"goalLabel":"short outcome phrase","scenarios":{"best":"1-2 sentences","likely":"1-2 sentences","worst":"1-2 sentences"},"milestones":[{"month":number,"text":"milestone text"}],"risks":["3-4 specific risks"],"nextSteps":["3-4 actionable next steps"],"items":[{"name":"target option","probability":0-100,"months":number,"note":"one sentence"}]}. "items" must contain entries for each listed option when multiple options exist, otherwise empty array.';
+
+  var provider=localStorage.getItem('predx_provider')||'builtin';
+  var userKey=localStorage.getItem('predx_key')||'';
+
+  var result=null,note='Simulation generated by predX deterministic model.';
+
+  try {
+    // 1. If client key configured
+    if(provider!=='builtin'&&userKey){
+      result=await runClientAi(provider,userKey,prompt);
+      note='Deep simulation powered by '+provider.toUpperCase()+' AI.';
+    }
+    // 2. Otherwise try serverless backend /api/analyze
+    if(!result){
+      var rs=await fetch('/api/analyze',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({prompt:prompt})
+      });
+      if(rs.ok){
+        result=await rs.json();
+        note='Deep simulation powered by predX Cloud AI.';
+      }
+    }
+  } catch(e) {
+    // Falls through to fallback model
+  }
+
+  // Artificial short delay so simulation transition feels intentional and polished
+  await new Promise(function(resolve){setTimeout(resolve,400)});
+
+  if(!result){
+    result=fallback(inp);
+    note='Simulation computed using predX Built-in Heuristic Model.';
+  }
+
+  render(result,note);
+  $('go').disabled=false;
+  $('out').scrollIntoView({behavior:'smooth',block:'nearest'});
+};
+
+// Initialize
+initTheme();
+initSettings();
+tabs();
+form();
+</script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "predx",
+  "version": "1.0.0",
+  "description": "predX - Personal Decision Simulation Engine",
+  "main": "api/analyze.js",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "keywords": [
+    "predx",
+    "decision-simulation",
+    "ai",
+    "future-prediction",
+    "career-simulator",
+    "business-planner"
+  ],
+  "author": "Sameer Pasha",
+  "license": "MIT"
+}
